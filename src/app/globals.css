@@ -1,0 +1,189 @@
+/* biome-ignore-all lint/complexity/noImportantStyles: a regra de
+   prefers-reduced-motion só cumpre seu papel com !important — ela precisa
+   vencer qualquer animação declarada depois dela na cascata. */
+@import "tailwindcss";
+
+/* =====================================================================
+   SISTEMA DE DESIGN — ROCK / VÁLVULA
+   ---------------------------------------------------------------------
+   Identidade deliberadamente DIFERENTE do portfólio. Lá é preto frio com
+   violeta e ouro; aqui é preto quente com o laranja de válvula acesa e o
+   vermelho de cartaz de show. A referência é o painel de um amplificador
+   no escuro e o cartaz colado no poste.
+   ===================================================================== */
+
+@theme {
+  /* --- Cores ------------------------------------------------------- */
+  /* Preto QUENTE, puxado para o marrom: cor de couro de amplificador. */
+  --color-breu: #0c0906;
+  --color-couro: #171008;
+  --color-tampa: #241a10;
+
+  /* Acento principal: o brilho da válvula. */
+  --color-valvula: #ff7a1a;
+  --color-valvula-claro: #ffa25c;
+
+  /* Acento secundário: vermelho de cartaz. */
+  --color-brasa: #d9331f;
+  --color-brasa-claro: #f05a45;
+
+  /* Texto: creme de tela de alto-falante. */
+  --color-creme: #f4ead8;
+  --color-poeira: #a8977f;
+
+  /* --- Tipografia -------------------------------------------------- */
+  /* Anton: pesadíssima e condensada, tipografia de cartaz de show.
+     Archivo: grotesca de largura normal, para leitura.
+     A diferença de peso e largura entre as duas é enorme — é ela que
+     separa título de texto, sem precisar de cor. */
+  --font-cartaz: var(--fonte-cartaz), "Arial Black", sans-serif;
+  --font-corpo: var(--fonte-corpo), system-ui, sans-serif;
+}
+
+/* =====================================================================
+   BASE
+   ===================================================================== */
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  background-color: var(--color-breu);
+  color: var(--color-creme);
+  font-family: var(--font-corpo);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Luz de válvula vazando dos cantos. Fica atrás de tudo e não pega clique. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(
+      circle at 12% -8%,
+      rgba(255, 122, 26, 0.16),
+      transparent 42%
+    ),
+    radial-gradient(circle at 92% 4%, rgba(217, 51, 31, 0.1), transparent 38%);
+}
+
+::selection {
+  background: var(--color-valvula);
+  color: #1a0f04;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-valvula-claro);
+  outline-offset: 3px;
+}
+
+/* =====================================================================
+   ELEMENTOS DE ASSINATURA
+   ===================================================================== */
+
+/* Tela de alto-falante: trama fina em diagonal. É o que dá a leitura de
+   caixa de amplificador nos blocos, sem usar nenhuma imagem. */
+.tela {
+  background-color: var(--color-couro);
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      rgba(244, 234, 216, 0.045) 0 1px,
+      transparent 1px 4px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(244, 234, 216, 0.045) 0 1px,
+      transparent 1px 4px
+    );
+}
+
+/* Painel: bloco com filete de luz no topo, como o painel de controle de
+   um amplificador iluminado por cima. */
+.painel {
+  position: relative;
+  background-color: var(--color-couro);
+  border: 1px solid var(--color-tampa);
+}
+
+.painel::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-valvula) 30%,
+    var(--color-brasa) 75%,
+    transparent
+  );
+}
+
+/* Tipografia de cartaz: gigante, condensada, com as letras se tocando. */
+.cartaz {
+  font-family: var(--font-cartaz);
+  line-height: 0.85;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* Palavra realçada como carimbo, com leve inclinação — recurso clássico
+   de cartaz de show. */
+.carimbo {
+  display: inline-block;
+  transform: rotate(-2deg);
+  background: var(--color-brasa);
+  color: var(--color-creme);
+  padding: 0 0.25em;
+}
+
+/* =====================================================================
+   FAIXA ROLANTE
+   ---------------------------------------------------------------------
+   O trilho tem o conteúdo DUPLICADO no HTML e desliza exatamente metade
+   da própria largura. Quando termina, a segunda metade está no lugar
+   onde a primeira começou — e o corte não aparece.
+   ===================================================================== */
+
+@keyframes desliza {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.trilho {
+  animation: desliza 48s linear infinite;
+}
+
+/* Passar o mouse pausa: quem quiser olhar uma foto consegue. */
+.faixa:hover .trilho {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .trilho {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
