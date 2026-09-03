@@ -152,6 +152,50 @@ body::before {
    onde a primeira começou — e o corte não aparece.
    ===================================================================== */
 
+/* =====================================================================
+   REVELAÇÃO DOS BLOCOS
+   ---------------------------------------------------------------------
+   O padrão é VISÍVEL. Só a classe `js` no <html> autoriza esconder — e
+   ela é colocada por um script no layout que se desfaz sozinho se a
+   página não terminar de carregar.
+   Consequência prática: se o JavaScript for bloqueado ou falhar, o site
+   aparece inteiro, sem animação. Antes ele ficava em branco.
+   ===================================================================== */
+
+[data-revelar] {
+  transition:
+    opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* `scripting: enabled` é uma pergunta que o próprio CSS faz ao navegador:
+   "o JavaScript está ligado?". Se estiver desligado ou bloqueado, esta
+   regra inteira é ignorada e o conteúdo aparece normalmente. */
+@media (scripting: enabled) {
+  [data-revelar="pendente"] {
+    opacity: 0;
+    transform: translateY(16px);
+    /* REDE DE SEGURANÇA, sem uma linha de JavaScript.
+       Se em 3 segundos o bloco continuar escondido — porque o site não
+       terminou de carregar —, esta animação o revela sozinha. Animação
+       de CSS roda mesmo quando o JavaScript falha. */
+    animation: revelar-emergencia 0.4s linear 3s forwards;
+  }
+
+  /* Página carregou: a rede de segurança é desligada e quem revela os
+     blocos passa a ser a rolagem. */
+  html[data-pronto] [data-revelar="pendente"] {
+    animation: none;
+  }
+}
+
+@keyframes revelar-emergencia {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes desliza {
   from {
     transform: translateX(0);
@@ -177,6 +221,17 @@ body::before {
 
   .trilho {
     animation: none !important;
+  }
+
+  /* Quem pediu menos movimento vê tudo, direto, sem transição. */
+  [data-revelar="pendente"] {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  [data-revelar] {
+    transition: none;
   }
 
   *,
